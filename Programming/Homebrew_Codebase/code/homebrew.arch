@@ -1,0 +1,217 @@
+; Specify all components of the homebrew CPU necessary for the assembler to configure
+
+
+; Define bit width of instructions and addresses
+instruction_width	1
+address_width		2
+
+
+; Define size (in bytes) of program ROM
+program_rom_size	32767
+
+
+; *** Define registers first ***
+register	8	a, b, c, d, ah, al
+register	16	pc, ra, ahl
+register	16	sp, si
+
+
+; *** Define flags ***
+flag FLAG_C, FLAG_S, FLAG_V, FLAG_Z, FLAG_D
+
+
+; *** Define external devices ***
+device Device_0, Device_1, Device_2, Device_3, Device_4, Device_5, Device_6, Device_7, Device_8, Device_9, Device_10
+
+
+; *** Define control lines (32 total) ***
+; Note that shifts are 32 - (# bits of control group)
+; Mem Bus Writers (2)
+control NULL_WRITE_MEM			0 << 30
+control _RAM_WRITE_MEM			1 << 30
+control _MEMBRIDGE_WRITE_MEM	2 << 30
+
+; Mem Bus Readers (2)
+control NULL_READ_MEM			0 << 28
+control IR_READ_MEM				1 << 28
+control Ahi_READ_MEM			2 << 28
+control Alo_READ_MEM			3 << 28
+
+; Data Bus Writers (3)
+control NULL_WRITE_DATA			0 << 25
+control _MEMBRIDGE_WRITE_DATA	1 << 25
+control _ALU_WRITE_DATA			2 << 25
+control _DEVICE_0_WRITE_DATA	3 << 25
+control _DEVICE_1_WRITE_DATA	4 << 25
+control _DEVICE_2_WRITE_DATA	5 << 25
+control _DEVICE_3_WRITE_DATA	6 << 25
+control _DEVICE_4_WRITE_DATA	7 << 25
+
+; Data Bus Readers (4)
+control NULL_READ_DATA			0 << 21
+control A_READ_DATA				1 << 21
+control B_READ_DATA				2 << 21
+control C_READ_DATA				3 << 21
+control D_READ_DATA				4 << 21
+control DEVICE_0_READ_DATA		5 << 21
+control DEVICE_1_READ_DATA		6 << 21
+control DEVICE_2_READ_DATA		7 << 21
+control DEVICE_3_READ_DATA		8 << 21
+control DEVICE_4_READ_DATA		9 << 21
+control DEVICE_5_READ_DATA		10 << 21
+control DEVICE_6_READ_DATA		11 << 21
+control DEVICE_7_READ_DATA		12 << 21
+control DEVICE_8_READ_DATA		13 << 21
+control DEVICE_9_READ_DATA		14 << 21
+control DEVICE_10_READ_DATA		15 << 21
+
+; LHS Bus Writers (3)
+control NULL_WRITE_LHS			0 << 18
+control _Ahi_WRITE_LHS			1 << 18
+control _A_WRITE_LHS			2 << 18
+control _B_WRITE_LHS			3 << 18
+control _C_WRITE_LHS			4 << 18
+control _D_WRITE_LHS			5 << 18
+control _RA_WRITE_LHS			6 << 18
+
+; RHS Bus Writers (3)
+control NULL_WRITE_RHS			0 << 15
+control _Alo_WRITE_RHS			1 << 15
+control _A_WRITE_RHS			2 << 15
+control _B_WRITE_RHS			3 << 15
+control _C_WRITE_RHS			4 << 15
+control _D_WRITE_RHS			5 << 15
+control _RA_WRITE_RHS			6 << 15
+
+; LHS / RHS Bus Readers (2)
+control NULL_READ_LRHS			0 << 13
+control _PC_READ_LRHS			1 << 13
+control _SP_READ_LRHS			2 << 13
+control _SI_READ_LRHS			3 << 13
+
+; ADDR Bus Writers (2)
+control _Ahl_WRITE_ADDR			0 << 11
+control _PC_WRITE_ADDR			1 << 11
+control _SP_WRITE_ADDR			2 << 11
+control _SI_WRITE_ADDR			3 << 11
+
+; INC / DEC / STORE (3)
+control NULL_INC_DEC_STO		0 << 8
+control PC_DEC					1 << 8
+control SP_INC					2 << 8
+control SI_INC					3 << 8
+control SP_DEC					4 << 8
+control SI_DEC					5 << 8
+control _RAM_STO_MEM			6 << 8
+
+; Sequence Controls (3)
+control NULL_SEQ				0 << 5
+pc_control PC_INC				1 << 5
+control _TCU_END_SEQ			2 << 5
+control RTI_SEQ					3 << 5
+control RA_READ_LRHS_SEQ		4 << 5
+control RA_READ_PC_SEQ			5 << 5
+
+; ALU Operations (5)
+control ALU_ZERO				0 << 0
+control ALU_PASS_LHS			1 << 0
+control ALU_PASS_RHS			2 << 0
+; many more ALU ops to define here!
+
+; Special
+control FETCH _RAM_WRITE_MEM | IR_READ_MEM | PC_INC
+
+
+; *** Define Opcodes ***
+; no operation
+opcode $00 nop 
+{ 
+	seq FETCH;
+	seq _TCU_END_SEQ;
+}
+
+; immediate moves
+opcode $01 mov a, #
+{
+	seq FETCH;
+	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | A_READ_DATA | PC_INC;
+	seq _TCU_END_SEQ;
+}
+
+opcode $02 mov b, #
+{
+	seq FETCH;
+	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | B_READ_DATA | PC_INC;
+	seq _TCU_END_SEQ;
+}
+
+opcode $03 mov c, #
+{
+	seq FETCH;
+	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | C_READ_DATA | PC_INC;
+	seq _TCU_END_SEQ;
+}
+
+opcode $04 mov d, #
+{
+	seq FETCH;
+	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | D_READ_DATA | PC_INC;
+	seq _TCU_END_SEQ;
+}
+
+
+; register transfers
+opcode $05 mov a, b
+{
+	seq FETCH;
+	seq _A_WRITE_LHS | ALU_PASS_LHS | B_READ_DATA;
+	seq _TCU_END_SEQ;
+}
+
+opcode $06 mov a, c
+{
+	seq FETCH;
+	seq _A_WRITE_LHS | ALU_PASS_LHS | C_READ_DATA;
+	seq _TCU_END_SEQ;
+}
+
+opcode $07 mov a, d
+{
+	seq FETCH;
+	seq _A_WRITE_LHS | ALU_PASS_LHS | D_READ_DATA;
+	seq _TCU_END_SEQ;
+}
+
+opcode $08 mov a, al
+{
+	seq FETCH;
+	seq _A_WRITE_LHS | ALU_PASS_LHS | _MEMBRIDGE_WRITE_MEM | Alo_READ_MEM;
+	seq _TCU_END_SEQ;
+}
+
+opcode $09 mov a, ah
+{
+	seq FETCH;
+	seq _A_WRITE_LHS | ALU_PASS_LHS | _MEMBRIDGE_WRITE_MEM | Ahi_READ_MEM;
+	seq _TCU_END_SEQ;
+}
+
+; *** Define Opcode Aliases ***
+opcode_alias $00 null;
+opcode_alias $01 lda #;
+opcode_alias $02 ldb #;
+opcode_alias $03 ldc #;
+opcode_alias $04 ldd #;
+opcode_alias $05 tab;
+opcode_alias $06 tac;
+opcode_alias $07 tad;
+opcode_alias $08 taal;
+opcode_alias $09 taah;
+
+
+; Write out the decoder roms
+writerom decoder 16 16
+
+
+; End the architecture definition
+.endarch
