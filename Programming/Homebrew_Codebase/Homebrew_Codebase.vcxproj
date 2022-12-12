@@ -166,7 +166,7 @@
     <ClInclude Include="src\InstructionDefine.h" />
     <ClInclude Include="src\Opcode.h" />
     <ClInclude Include="src\Parser.h" />
-    <ClInclude Include="src\ROM.h" />
+    <ClInclude Include="src\Rom.h" />
     <ClInclude Include="src\Symbol.h" />
     <ClInclude Include="src\SymbolConfig.h" />
     <ClInclude Include="src\Util.h" />

@@ -34,8 +34,10 @@ public:
 
 		if (!tokenString.empty())
 		{
-			std::cout << "  --> Processing include directive for file: " << tokenString << std::endl;
-			a.PushFileToSourceStack("D:\\Projects\\Homebrew_CPU\\Programming\\Homebrew_Codebase\\code\\" + tokenString, line);
+			if (a.EchoMajorTasks())
+				std::cout << "          *** Processing include directive for file: " << tokenString << "\n";
+
+			a.PushFileToSourceStack("code\\" + tokenString, line);
 		}
 		else
 		{
@@ -70,7 +72,8 @@ public:
 			{
 				a.SetAddress(parsedValue);
 
-				std::cout << "          *** Setting Address to $" << hex8 << parsedValue << "\n";
+				if (a.EchoParsedMajor())
+					std::cout << "          *** Setting Address to $" << hex8 << parsedValue << "\n\n";
 			}
 			catch (const std::exception& e)
 			{

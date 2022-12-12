@@ -59,7 +59,7 @@
     <ClInclude Include="src\Assembler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ROM.h">
+    <ClInclude Include="src\Rom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Util.h">

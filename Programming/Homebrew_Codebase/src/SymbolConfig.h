@@ -26,9 +26,9 @@ constexpr const char* PC_INC_CTRL_STR = "pc_control";
 constexpr const char* OPCODE_STR = "opcode";
 constexpr const char* OPCODE_ALIAS_STR = "opcode_alias";
 constexpr const char* OPCODE_SEQ_STR = "seq";
-constexpr const char* ROM_WRITE_STR = "writerom";
-constexpr const char* END_ARCH_STR = ".endarch";
+constexpr const char* END_ARCH_STR = "**endarch**";
 
 constexpr const char* INSTRUCTION_WIDTH_STR = "instruction_width";
 constexpr const char* ADDRESS_WIDTH_STR = "address_width";
-constexpr const char* PROGRAM_ROM_SIZE_STR = "program_rom_size";
+constexpr const char* PROGRAM_ROM_STR = "program_rom";
+constexpr const char* DECODER_ROM_STR = "decoder_rom";
