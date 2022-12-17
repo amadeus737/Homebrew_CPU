@@ -45,7 +45,7 @@ public class Rom : MonoBehaviour
             for (int i = 0; i < _size; i++)
             {
                 Value v = new Value();
-                v.value = binaryReader.ReadByte();
+                v.value = (ulong)binaryReader.ReadInt16();
                 v.state = ValueState.Good;
                 _data.Add(v);
             }
@@ -61,7 +61,7 @@ public class Rom : MonoBehaviour
         fileStream.Close();
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (!_romLoaded)
             return;

@@ -1885,6 +1885,7 @@ GameObject:
   - component: {fileID: 492279091}
   - component: {fileID: 492279090}
   - component: {fileID: 492279089}
+  - component: {fileID: 492279092}
   m_Layer: 0
   m_Name: CPU
   m_TagString: Untagged
@@ -2023,6 +2024,78 @@ MonoBehaviour:
     _value: 0
     _maxVal: 0
   _leds: {fileID: 2055446120}
+--- !u!114 &492279092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492279085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06b80dcf5bcdbaf4596ae2c81242eccc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _romName: test_decoder_0
+  _delay: 0.00000006
+  _data: []
+  _outputEnable: {fileID: 0}
+  _outputBus: {fileID: 0}
+  _lastValue:
+    _state: 0
+    _value: 0
+    _maxVal: 0
+  a: 0
+  _outputs:
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  - _state: 0
+    _value: 0
+    _maxVal: 0
+  testval: 0
 --- !u!1 &502134124
 GameObject:
   m_ObjectHideFlags: 0
