@@ -157,6 +157,7 @@
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ALU.h" />
     <ClInclude Include="src\Assembler.h" />
     <ClInclude Include="src\Command.h" />
     <ClInclude Include="src\CommandDefine.h" />
