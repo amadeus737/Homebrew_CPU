@@ -325,6 +325,8 @@ public:
 			{
 				std::string tokenString = std::string(nextToken.value());
 
+				bool isAddress = Parser::Instance().try_strip_indirect(tokenString);
+
 				if (tokenString[0] == '|')
 				{
 					op = Operation::OR;
@@ -336,24 +338,50 @@ public:
 				else if (tokenString[0] == '#')
 				{
 					Opcode::Arg newArg;
-					newArg._type = ArgType::Numeral;
-					newArg._string = '#';
+					if (isAddress)
+					{
+						newArg._type = ArgType::DerefNum;
+						newArg._string = "[#]";
+					}
+					else
+					{
+						newArg._type = ArgType::Numeral;
+						newArg._string = "#";
+					}					
 
 					opcode.AddArgument(newArg);
 
 					if (assembler.EchoParsedMinor())
-						std::cout << "					*** Adding an immediate value argument [" << newArg._string << "]\n";
+					{ 
+						if (!isAddress)
+							std::cout << "					*** Adding an immediate value argument = " << newArg._string << "\n";
+						else
+							std::cout << "					*** Adding a dereferenced value argument = " << newArg._string << "\n";
+					}
 				}
 				else if (assembler.GetSymbolType(tokenString) == SymbolType::Register)
 				{
 					Opcode::Arg newArg;
-					newArg._type = ArgType::Register;
-					newArg._string = tokenString;
+					if (isAddress)
+					{
+						newArg._type = ArgType::DerefReg;
+						newArg._string = "[" + tokenString + "]";
+					}
+					else
+					{
+						newArg._type = ArgType::Register;
+						newArg._string = tokenString;
+					}
 
 					opcode.AddArgument(newArg);
 
 					if (assembler.EchoParsedMinor())
-						std::cout << "					*** Adding a register value argument [" << newArg._string << "]\n";
+					{
+						if (!isAddress)
+							std::cout << "					*** Adding a register value argument = " << newArg._string << "\n";
+						else
+							std::cout << "					*** Adding a dereferenced register value argument = " << newArg._string << "\n";
+					}
 				}
 				else
 				{
@@ -450,28 +478,55 @@ public:
 			if (nextToken.has_value())
 			{
 				std::string tokenString = std::string(nextToken.value());
+				bool isAddress = Parser::Instance().try_strip_indirect(tokenString);
 
 				if (tokenString[0] == '#')
 				{
 					Opcode::Arg newArg;
-					newArg._type = ArgType::Numeral;
-					newArg._string = '#';
+					if (isAddress)
+					{
+						newArg._type = ArgType::DerefNum;
+						newArg._string = "[#]";
+					}
+					else
+					{
+						newArg._type = ArgType::Numeral;
+						newArg._string = "#";
+					}
 
 					opcode_alias.AddArgument(newArg);
 
 					if (assembler.EchoParsedMinor())
-						std::cout << "					*** Adding an immediate value argument [" << newArg._string << "]\n";
+					{
+						if (!isAddress)
+							std::cout << "					*** Adding an immediate value argument = " << newArg._string << "\n";
+						else
+							std::cout << "					*** Adding a dereferenced value argument = " << newArg._string << "\n";
+					}
 				}
 				else if (assembler.GetSymbolType(tokenString) == SymbolType::Register)
 				{
 					Opcode::Arg newArg;
-					newArg._type = ArgType::Register;
-					newArg._string = tokenString;
+					if (isAddress)
+					{
+						newArg._type = ArgType::DerefReg;
+						newArg._string = "[" + tokenString + "]";
+					}
+					else
+					{
+						newArg._type = ArgType::Register;
+						newArg._string = tokenString;
+					}
 
 					opcode_alias.AddArgument(newArg);
 
 					if (assembler.EchoParsedMinor())
-						std::cout << "					*** Adding a register value argument [" << newArg._string << "]\n";
+					{
+						if (!isAddress)
+							std::cout << "					*** Adding a register value argument = " << newArg._string << "\n";
+						else
+							std::cout << "					*** Adding a dereferenced register value argument = " << newArg._string << "\n";
+					}
 				}
 			}
 			else

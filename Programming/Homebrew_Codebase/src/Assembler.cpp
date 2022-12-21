@@ -460,6 +460,9 @@ void Assembler::ProcessLine(std::string& line, int linenum, bool preprocessing)
 	else
 		tokenString = modified_line;
 
+	if (tokenString.front() == '#')
+		return;
+
 	if (tokenString.front() == '{' || tokenString.front() == '}')
 	{
 		if (tokenString.front() == '}' && _echo_parsed_major)

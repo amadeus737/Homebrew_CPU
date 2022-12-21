@@ -60,7 +60,7 @@ public:
 				printf("\n=====================================================================================================\n");
 				std::cout << std::setw(56 - filename.size() / 2) << std::setfill(' ') << "File :  " << filename << std::setw(56 - filename.size() / 2) << std::setfill(' ') << "\n";
 				printf("=====================================================================================================\n");
-				printf("ADDR:  0000  0002  0004  0006  0008  000A  000C  000E  0010  0012  0014  0016  0018  001A  001C  001E\n");
+				printf("ADDR:  0000  0001  0002  0003  0004  0005  0006  0007  0010  0012  0014  0016  0018  001A  001C  001E\n");
 				printf("-----------------------------------------------------------------------------------------------------");
 			}
 		}
@@ -120,7 +120,7 @@ public:
 				if (columnCount == 0 || columnCount == 16)
 				{
 					//printf(header_format.c_str(), i);
-					row.push_back(currRow * column_width * num_bytes);
+					row.push_back(currRow * column_width);
 
 					columnCount = 0;
 					currRow++;
@@ -134,8 +134,8 @@ public:
 
 					if (num_bytes == 2)
 					{
-						uint16_t v16 = (v & 0xffff0000) | (v & 0x0000ffff);
-
+						uint16_t v16 = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
+					
 						row.push_back(v16);
 						row_total += v16;
 						lastVal = v16;

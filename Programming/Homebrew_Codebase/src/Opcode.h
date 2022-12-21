@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-enum class ArgType { None, Register, Numeral, Ascii };
+enum class ArgType { None, Register, Numeral, Ascii, DerefReg, DerefNum, DerefAscii };
 
 class Opcode
 {
@@ -46,6 +46,7 @@ public:
 			switch (_arguments[i]._type)
 			{
 				case ArgType::Register:
+				case ArgType::DerefReg:
 					unique_str += _arguments[i]._string + "_";
 					break;
 
@@ -53,8 +54,16 @@ public:
 					unique_str += "#_";
 					break;
 
+				case ArgType::DerefNum:
+					unique_str += "[#]_";
+					break;
+
 				case ArgType::Ascii:
 					unique_str += "ASCII_";
+					break;
+
+				case ArgType::DerefAscii:
+					unique_str += "[ASCII]_";
 					break;
 			}
 		}

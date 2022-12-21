@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 			Assembler a(argv[1]);
 			std::string file = std::string(argv[1]);
 			file = std::string(file.begin(), file.end() - 2);
-			a.SetEchoLevel(0x0F); // unused, major_tasks, minor_tasks, warnings;  major_parsed, minor_parsed, source, rom
+			a.SetEchoLevel(0x0e); // unused, major_tasks, minor_tasks, warnings;  major_parsed, minor_parsed, source, rom
 
 			a.Assemble("roms\\test.s");
 		}

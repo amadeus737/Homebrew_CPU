@@ -158,11 +158,19 @@ private:
 
 					int controlPattern = 0;
 					controlPattern = curr_opcode.controlPattern(s);
-					T cp = (controlPattern >> (rom_number * 16)) & 0x0000ffff;
+					T cp_BE = (controlPattern >> (rom_number * 16)) & 0x0000ffff;
+
+					T cp_lo = cp_BE & 0x00ff;
+					T cp_hi = cp_BE & 0xff00;
+
+					T cp_LE = (cp_lo << 8) | (cp_hi >> 8);
 
 					//std::cout << "ROM[" << dec << address << "] = $" << std::hex << std::setw(4) << std::setfill('0') << cp << "\n";
 
-					rom.AddData(address, cp);
+					if (rom_number == 0)
+						rom.AddData(address, cp_LE);
+					else
+						rom.AddData(address, cp_BE);
 				}
 			}
 		}

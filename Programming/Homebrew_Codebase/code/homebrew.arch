@@ -1,214 +1,1944 @@
-; Specify all components of the homebrew CPU necessary for the assembler to configure
+; specify all components of the homebrew cpu necessary for the assembler to configure
 
-
-; Define bit width of instructions and addresses
-instruction_width	1
+; *** define architecture ***
+#region architecture_specs
+; define bit width of instructions and addresses
+instruction_width		1
 address_width		2
 
 
-; Define size (in bytes) of program ROM
+; define size (in bytes) of program rom
 decoder_rom		1		16 16
 program_rom		1		15 8
 
 
-; *** Define registers first ***
-register	8	a, b, c, d, ah, al
-register	16	pc, ra, ahl
-register	16	sp, si
+; *** define registers first ***
+register		8		a, b, c, d, th, tl, rah, ral, al, ah
+register		16		pc, ra, tx, ax
+register		16		sp, si
 
 
-; *** Define flags ***
-flag FLAG_C, FLAG_S, FLAG_V, FLAG_Z, FLAG_D
+; *** define flags ***
+flag flag_c, flag_s, flag_v, flag_z, flag_d
 
 
-; *** Define external devices ***
-device Device_0, Device_1, Device_2, Device_3, Device_4, Device_5, Device_6, Device_7, Device_8, Device_9, Device_10
+; *** define external devices ***
+device device0, device1, device2, device3, device4, device5, device6, device7, device8, device9, device10
+#endregion
 
+; *** define control lines (32) ***
+#region control_lines
+; mem bus writers (2)
+control null_write_mem			0 << 0
+control _mem_out					1 << 0
+control _membridge_write_mem		2 << 0
 
-; *** Define control lines (32 total) ***
-; Note that shifts are 32 - (# bits of control group)
-; Mem Bus Writers (2)
-control NULL_WRITE_MEM			0 << 0
-control _RAM_WRITE_MEM			1 << 0
-control _MEMBRIDGE_WRITE_MEM	2 << 0
+; mem bus readers (2)
+control null_read_mem				0 << 2
+control ir_read_mem				1 << 2
+control th_read_mem				2 << 2
+control tl_read_mem				3 << 2
 
-; Mem Bus Readers (2)
-control NULL_READ_MEM			0 << 2
-control IR_READ_MEM				1 << 2
-control Ahi_READ_MEM			2 << 2
-control Alo_READ_MEM			3 << 2
+; data bus writers (3)
+control null_write_data			0 << 4
+control _membridge_write_data		1 << 4
+control _alu_write_data			2 << 4
+control _device0_write_data		3 << 4
+control _device1_write_data		4 << 4
+control _device2_write_data		5 << 4
+control _device3_write_data		6 << 4
+control _device4_write_data		7 << 4
 
-; Data Bus Writers (3)
-control NULL_WRITE_DATA			0 << 4
-control _MEMBRIDGE_WRITE_DATA	1 << 4
-control _ALU_WRITE_DATA			2 << 4
-control _DEVICE_0_WRITE_DATA	3 << 4
-control _DEVICE_1_WRITE_DATA	4 << 4
-control _DEVICE_2_WRITE_DATA	5 << 4
-control _DEVICE_3_WRITE_DATA	6 << 4
-control _DEVICE_4_WRITE_DATA	7 << 4
+; data bus readers (4)
+control null_read_data			0 << 7
+control a_read_data				1 << 7
+control b_read_data				2 << 7
+control c_read_data				3 << 7
+control d_read_data				4 << 7
+control device_0_read_data			5 << 7
+control device_1_read_data			6 << 7
+control device_2_read_data			7 << 7
+control device_3_read_data			8 << 7
+control device_4_read_data			9 << 7
+control device_5_read_data			10 << 7
+control device_6_read_data			11 << 7
+control device_7_read_data			12 << 7
+control device_8_read_data			13 << 7
+control device_9_read_data			14 << 7
+control device_10_read_data		15 << 7
 
-; Data Bus Readers (4)
-control NULL_READ_DATA			0 << 7
-control A_READ_DATA				1 << 7
-control B_READ_DATA				2 << 7
-control C_READ_DATA				3 << 7
-control D_READ_DATA				4 << 7
-control DEVICE_0_READ_DATA		5 << 7
-control DEVICE_1_READ_DATA		6 << 7
-control DEVICE_2_READ_DATA		7 << 7
-control DEVICE_3_READ_DATA		8 << 7
-control DEVICE_4_READ_DATA		9 << 7
-control DEVICE_5_READ_DATA		10 << 7
-control DEVICE_6_READ_DATA		11 << 7
-control DEVICE_7_READ_DATA		12 << 7
-control DEVICE_8_READ_DATA		13 << 7
-control DEVICE_9_READ_DATA		14 << 7
-control DEVICE_10_READ_DATA		15 << 7
+; lhs bus writers (3)
+control null_write_lhs			0 << 11
+control _th_write_lhs				1 << 11
+control _a_write_lhs				2 << 11
+control _b_write_lhs				3 << 11
+control _c_write_lhs				4 << 11
+control _d_write_lhs				5 << 11
+control _ra_write_lhs				6 << 11
+control _ah_write_lhs		    	7 << 11
 
-; LHS Bus Writers (3)
-control NULL_WRITE_LHS			0 << 11
-control _Ahi_WRITE_LHS			1 << 11
-control _A_WRITE_LHS			2 << 11
-control _B_WRITE_LHS			3 << 11
-control _C_WRITE_LHS			4 << 11
-control _D_WRITE_LHS			5 << 11
-control _RA_WRITE_LHS			6 << 11
+; rhs bus writers (3)
+control null_write_rhs			0 << 14
+control _tl_write_rhs				1 << 14
+control _a_write_rhs				2 << 14
+control _b_write_rhs				3 << 14
+control _c_write_rhs				4 << 14
+control _d_write_rhs				5 << 14
+control _ra_write_rhs				6 << 14
+control _al_write_rhs				7 << 14
 
-; RHS Bus Writers (3)
-control NULL_WRITE_RHS			0 << 14
-control _Alo_WRITE_RHS			1 << 14
-control _A_WRITE_RHS			2 << 14
-control _B_WRITE_RHS			3 << 14
-control _C_WRITE_RHS			4 << 14
-control _D_WRITE_RHS			5 << 14
-control _RA_WRITE_RHS			6 << 14
+; lhs / rhs bus readers (2)
+control null_read_lrhs			0 << 17
+control _pc_read_lrhs				1 << 17
+control _sp_read_lrhs				2 << 17
+control _si_read_lrhs				3 << 17
 
-; LHS / RHS Bus Readers (2)
-control NULL_READ_LRHS			0 << 17
-control _PC_READ_LRHS			1 << 17
-control _SP_READ_LRHS			2 << 17
-control _SI_READ_LRHS			3 << 17
+; addr bus writers (2)
+control _tx_write_addr			0 << 19
+control _pc_write_addr			1 << 19
+control _sp_write_addr			2 << 19
+control _si_write_addr			3 << 19
 
-; ADDR Bus Writers (2)
-control _Ahl_WRITE_ADDR			0 << 19
-control _PC_WRITE_ADDR			1 << 19
-control _SP_WRITE_ADDR			2 << 19
-control _SI_WRITE_ADDR			3 << 19
+; inc / dec / store (3)
+control null_inc_dec_sto			0 << 21
+control pc_dec					1 << 21
+control sp_inc					2 << 21
+control si_inc					3 << 21
+control sp_dec					4 << 21
+control si_dec					5 << 21
+control _ram_write				6 << 21
 
-; INC / DEC / STORE (3)
-control NULL_INC_DEC_STO		0 << 21
-control PC_DEC					1 << 21
-control SP_INC					2 << 21
-control SI_INC					3 << 21
-control SP_DEC					4 << 21
-control SI_DEC					5 << 21
-control _RAM_STO_MEM			6 << 21
+; sequence controls (3)
+control null_seq					0 << 24
+control pc_inc					1 << 24
+control _tcuEndSeq				2 << 24
+control rti						3 << 24
+control ra_read_lhs				4 << 24
+control ra_read_rhs				5 << 24
+control ra_read_pc				6 << 24
 
-; Sequence Controls (3)
-control NULL_SEQ				0 << 24
-control PC_INC					1 << 24
-control _TCU_END_SEQ			2 << 24
-control RTI_SEQ					3 << 24
-control RA_READ_LRHS_SEQ		4 << 24
-control RA_READ_PC_SEQ			5 << 24
+; alu operations (5)
+control alu_pass_lhs				0 << 27
+control alu_pass_rhs				1 << 27
+control alu_inc_lhs				2 << 27
+control alu_incc_lhs				3 << 27
+control alu_dec_lhs				4 << 27
+control alu_add_lhs_rhs			5 << 27
+control alu_addc_lhs_rhs			6 << 27
+control alu_sub_lhs_rhs			7 << 27
+control alu_subb_lhs_rhs			8 << 27
+control alu_mul_lo_lhs_rhs			9 << 27
+control alu_mul_hi_lhs_rhs			10 << 27
+control alu_div_lhs_rhs			11 << 27
+control alu_mod_lhs_rhs			12 << 27
+control alu_shl_lhs				13 << 27
+control alu_shr_lhs				14 << 27
+control alu_mshl_lhs_rhs			15 << 27
+control alu_mshr_lhs_rhs			16 << 27
+control alu_and_lhs_rhs			17 << 27
+control alu_or_lhs_rhs			18 << 27
+control alu_xor_lhs_rhs			19 << 27
+control alu_not_lhs				20 << 27
+control alu_cmp_lhs_rhs			21 << 27
+control alu_bit_lhs_rhs			22 << 27
+control alu_clc					23 << 27
+control alu_sei					24 << 27
+control alu_cli					25 << 27
+; and more
 
-; ALU Operations (5)
-control ALU_ZERO				0 << 27
-control ALU_PASS_LHS			1 << 27
-control ALU_PASS_RHS			2 << 27
-; many more ALU ops to define here!
+; special
+control fetch = _mem_out | ir_read_mem | _pc_write_addr | pc_inc
+#endregion
 
-; Special
-control FETCH _RAM_WRITE_MEM | IR_READ_MEM | PC_INC
+; *** define opcodes (256) ***
+#region opcodes
 
-
-; *** Define Opcodes ***
-; no operation
+; opcode slot $00 (2 cycles)
+#region no_operation
 opcode $00 nop 
 { 
-	seq FETCH;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _tcuEndSeq;
 }
+#endregion
 
-; immediate moves
+; opcode slots $01 - $06 (3 cycles)
+#region immediate_moves
 opcode $01 mov a, #
 {
-	seq FETCH;
-	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | A_READ_DATA | PC_INC;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _mem_out | _membridge_write_data | a_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
 }
 
 opcode $02 mov b, #
 {
-	seq FETCH;
-	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | B_READ_DATA | PC_INC;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _mem_out | _membridge_write_data | b_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
 }
 
 opcode $03 mov c, #
 {
-	seq FETCH;
-	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | C_READ_DATA | PC_INC;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _mem_out | _membridge_write_data | c_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
 }
 
 opcode $04 mov d, #
 {
-	seq FETCH;
-	seq _RAM_WRITE_MEM | _MEMBRIDGE_WRITE_DATA | D_READ_DATA | PC_INC;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _mem_out | _membridge_write_data | d_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
 }
 
-
-; register transfers
-opcode $05 mov a, b
+opcode $05 mov tl, #
 {
-	seq FETCH;
-	seq _A_WRITE_LHS | ALU_PASS_LHS | B_READ_DATA;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _mem_out | tl_read_mem | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
 }
 
-opcode $06 mov a, c
+opcode $06 mov th, #
 {
-	seq FETCH;
-	seq _A_WRITE_LHS | ALU_PASS_LHS | C_READ_DATA;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _mem_out | th_read_mem | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
 }
+#endregion
 
-opcode $07 mov a, d
+; opcode slots $07 - $24 (3 cycles)
+#region register_transfers
+opcode $07 mov a, b
 {
-	seq FETCH;
-	seq _A_WRITE_LHS | ALU_PASS_LHS | D_READ_DATA;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
 }
 
-opcode $08 mov a, al
+opcode $08 mov a, c
 {
-	seq FETCH;
-	seq _A_WRITE_LHS | ALU_PASS_LHS | _MEMBRIDGE_WRITE_MEM | Alo_READ_MEM;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
 }
 
-opcode $09 mov a, ah
+opcode $09 mov a, d
 {
-	seq FETCH;
-	seq _A_WRITE_LHS | ALU_PASS_LHS | _MEMBRIDGE_WRITE_MEM | Ahi_READ_MEM;
-	seq _TCU_END_SEQ;
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
 }
 
-; *** Define Opcode Aliases ***
-opcode_alias $00 null;
-opcode_alias $01 lda #;
-opcode_alias $02 ldb #;
-opcode_alias $03 ldc #;
-opcode_alias $04 ldd #;
-opcode_alias $05 tab;
-opcode_alias $06 tac;
-opcode_alias $07 tad;
-opcode_alias $08 taal;
-opcode_alias $09 taah;
- 
+opcode $0a mov a, tl
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
 
-; End the architecture definition
+opcode $0b mov a, th
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $0c mov b, a
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $0d mov b, c
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $0e mov b, d
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $0f mov b, tl
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $10 mov b, th
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $11 mov c, a
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $12 mov c, b
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $13 mov c, d
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $14 mov c, tl
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $15 mov c, th
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $16 mov d, a
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $17 mov d, b
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $18 mov d, c
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $19 mov d, tl
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $1a mov d, th
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $1b mov tl, a
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_pass_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $1c mov tl, b
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_pass_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $1d mov tl, c
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_pass_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $1e mov tl, d
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_pass_rhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $1f mov tl, th
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_pass_rhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $20 mov th, a
+{
+	seq fetch;
+	seq _th_write_lhs | alu_pass_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $21 mov th, b
+{
+	seq fetch;
+	seq _th_write_lhs | alu_pass_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $22 mov th, c
+{
+	seq fetch;
+	seq _th_write_lhs | alu_pass_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $23 mov th, d
+{
+	seq fetch;
+	seq _th_write_lhs | alu_pass_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $24 mov th, tl
+{
+	seq fetch;
+	seq _th_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $25 - $2c (3 cycles)
+#region memory_reads
+opcode $25 mov a, [tx]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | a_read_data | _tx_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $26 mov b, [tx]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | b_read_data | _tx_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $27 mov c, [tx]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | c_read_data | _tx_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $28 mov d, [tx]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | d_read_data | _tx_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $29 mov a, [si]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | a_read_data | _si_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $2a mov b, [si]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | b_read_data | _si_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $2b mov c, [si]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | c_read_data | _si_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $2c mov d, [si]
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | d_read_data | _si_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $2d - $34 (3 cycles)
+#region memory_writes
+opcode $2d mov [tx], a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _tx_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $2e mov [tx], b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _tx_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $2f mov [tx], c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _tx_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $30 mov [tx], d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _tx_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $31 mov [si], a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _si_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $32 mov [si], b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _si_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $33 mov [si], c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _si_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $34 mov [si], d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | _si_write_addr | _ram_write | pc_inc;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $35 - $3a (3 to 4 cycles)
+#region counter_moves
+opcode $35 mov tx, sp
+{
+	seq fetch;
+	seq _sp_write_addr | _ah_write_lhs | alu_pass_lhs | _membridge_write_mem | th_read_mem;
+	seq _sp_write_addr | _al_write_rhs | alu_pass_rhs | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $36 mov tx, si
+{
+	seq fetch;
+	seq _si_write_addr | _ah_write_lhs | alu_pass_lhs | _membridge_write_mem | th_read_mem;
+	seq _si_write_addr | _al_write_rhs | alu_pass_rhs | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $37 mov sp, tx
+{
+	seq fetch;
+	seq _th_write_lhs | _tl_write_rhs | _sp_read_lrhs
+	seq _tcuEndSeq;
+}
+
+opcode $38 mov sp, si
+{
+	seq fetch;
+	seq _si_write_addr | _ah_write_lhs | _al_write_rhs | _sp_read_lrhs;
+	seq _tcuEndSeq;
+}
+
+opcode $39 mov si, tx
+{
+	seq fetch;
+	seq _th_write_lhs | _tl_write_rhs | _si_read_lrhs
+	seq _tcuEndSeq;
+}
+
+opcode $3a mov si, sp
+{
+	seq fetch;
+	seq _sp_write_addr | _ah_write_lhs | _al_write_rhs | _si_read_lrhs;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $3b - $3e (3 cycles)
+#region counter_inc_dec
+opcode $3b inc sp
+{
+	seq fetch;
+	seq sp_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $3c inc si
+{
+	seq fetch;
+	seq si_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $3d dec sp
+{
+	seq fetch;
+	seq sp_dec;
+	seq _tcuEndSeq;
+}
+
+opcode $3e dec si
+{
+	seq fetch;
+	seq si_dec;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $3f - $46 (3 cycles)
+#region register_push
+opcode $3f push a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $40 push b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_pass_lhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $41 push c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_pass_lhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $42 push d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_pass_lhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $43 push th
+{
+	seq fetch;
+	seq _th_write_lhs | alu_pass_lhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $44 push tl
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_pass_rhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $45 push rah
+{
+	seq fetch;
+	seq _ra_write_lhs | alu_pass_lhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $46 push ral
+{
+	seq fetch;
+	seq _ra_write_rhs | alu_pass_rhs | _membridge_write_mem | _sp_write_addr | _ram_write | sp_dec | pc_inc;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $47 - $4e (3 cycles)
+#region register_pop
+opcode $47 pop a
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | _membridge_write_data | a_read_data | sp_inc | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $48 pop b
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | _membridge_write_data | b_read_data | sp_inc | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $49 pop c
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | _membridge_write_data | c_read_data | sp_inc | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $4a pop d
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | _membridge_write_data | d_read_data | sp_inc | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $4b pop tl
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | tl_read_mem | sp_inc | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $4c pop th
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | th_read_mem | sp_inc | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $4d pop rah
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | th_read_mem | ra_read_lhs | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $4e pop ral
+{
+	seq fetch;
+	seq _sp_write_addr | _mem_out | tl_read_mem | ra_read_rhs | pc_inc;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $4f - $54 (3 cycles)
+#region register_inc
+opcode $4f inc a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_inc_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $50 inc b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_inc_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $51 inc c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_inc_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $52 inc d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_inc_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $53 inc tl
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_inc_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $54 inc th
+{
+	seq fetch;
+	seq _th_write_lhs | alu_inc_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $55 - $5a (3 cycles)
+#region register_incc
+opcode $55 incc a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_incc_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $56 incc b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_incc_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $57 incc c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_incc_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $58 incc d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_incc_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $59 incc tl
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_incc_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $5a incc th
+{
+	seq fetch;
+	seq _th_write_lhs | alu_incc_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $5b - $60  (3 cycles)
+#region register_dec
+opcode $5b dec a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_dec_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $5c dec b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_dec_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $5d dec c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_dec_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $5e dec d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_dec_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $5f dec tl
+{
+	seq fetch;
+	seq _tl_write_rhs | alu_dec_lhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $60 dec th
+{
+	seq fetch;
+	seq _th_write_lhs | alu_dec_lhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $61 - $6d (3 cycles)
+#region register_add
+opcode $61 add a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_add_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $62 add a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_add_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $63 add a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_add_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $64 add a, tl
+{
+	seq fetch;
+	seq _a_write_lhs | _tl_write_rhs | alu_add_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $65 add a, th
+{
+	seq fetch;
+	seq _a_write_lhs | _th_write_lhs | alu_add_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $66 add b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_add_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $67 add b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_add_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $68 add b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_add_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $69 add c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_add_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $6a add c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_add_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $6b add c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_add_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $6c add tl, a
+{
+	seq fetch;
+	seq _tl_write_rhs | _a_write_rhs | alu_add_lhs_rhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $6d add th, a
+{
+	seq fetch;
+	seq _th_write_lhs | _a_write_rhs | alu_add_lhs_rhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $6e - $76 (3 cycles)
+#region register_addc
+opcode $6e addc a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_addc_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $6f addc a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_addc_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $70 addc a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_addc_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $71 addc b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_addc_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $72 addc b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_addc_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $73 addc b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_addc_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $74 addc c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_addc_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $75 addc c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_addc_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $76 addc c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_addc_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $77 - $83 (3 cycles)
+#region register_sub
+opcode $77 sub a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_sub_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $78 sub a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_sub_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $79 sub a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_sub_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $7a sub a, tl
+{
+	seq fetch;
+	seq _a_write_lhs | _tl_write_rhs | alu_sub_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $7b sub a, th
+{
+	seq fetch;
+	seq _a_write_lhs | _th_write_lhs | alu_sub_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $7c sub b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_sub_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $7d sub b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_sub_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $7e sub b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_sub_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $7f sub c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_sub_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $80 sub c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_sub_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $81 sub c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_sub_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $82 sub tl, a
+{
+	seq fetch;
+	seq _tl_write_rhs | _a_write_rhs | alu_sub_lhs_rhs | _alu_write_data | _membridge_write_mem | tl_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $83 sub th, a
+{
+	seq fetch;
+	seq _th_write_lhs | _a_write_rhs | alu_sub_lhs_rhs | _alu_write_data | _membridge_write_mem | th_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $84 - $8c (3 cycles)
+#region register_subb
+opcode $84 subb a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_subb_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $85 subb a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_subb_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $86 subb a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_subb_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $87 subb b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_subb_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $88 subb b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_subb_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $89 subb b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_subb_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $8a subb c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_subb_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $8b subb c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_subb_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $8c subb c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_subb_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $8d - $95 (3 cycles)
+#region register_and
+opcode $8d and a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_and_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $8e and a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_and_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $8f and a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_and_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $90 and b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_and_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $91 and b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_and_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $92 and b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_and_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $93 and c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_and_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $94 and c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_and_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $95 and c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_and_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $96 - $9e (3 cycles)
+#region register_or
+opcode $96 or a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_or_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $97 or a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_or_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $98 or a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_or_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $99 or b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_or_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $9a or b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_or_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $9b or b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_or_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $9c or c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_or_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $9d or c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_or_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $9e or c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_or_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $9f - $a7 (3 cycles)
+#region register_xor
+opcode $9f xor a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_xor_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a0 xor a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_xor_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a1 xor a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_xor_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a2 xor b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_xor_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a3 xor b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_xor_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a4 xor b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_xor_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a5 xor c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_xor_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a6 xor c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_xor_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a7 xor c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_xor_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $a8 - $b0 (3 cycles)
+#region register_mod
+opcode $a8 mod a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_mod_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $a9 mod a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_mod_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $aa mod a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_mod_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $ab mod b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_mod_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $ac mod b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_mod_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $ad mod b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_mod_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $ae mod c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_mod_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $af mod c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_mod_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b0 mod c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_mod_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $b1 - $b9 (3 cycles)
+#region register_div
+opcode $b1 div a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_div_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b2 div a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_div_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b3 div a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_div_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b4 div b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_div_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b5 div b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_div_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b6 div b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_div_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b7 div c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_div_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b8 div c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_div_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $b9 div c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_div_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $ba - $c2 (3 cycles)
+#region register_mul_lo
+opcode $ba mull a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $bb mull a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $bc mull a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $bd mull b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $be mull b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $bf mull b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c0 mull c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c1 mull c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c2 mull c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_mul_lo_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $c3 - $cb (3 cycles)
+#region register_mul_hi
+opcode $c3 mulh a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c4 mulh a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c5 mulh a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c6 mulh b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c7 mulh b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c8 mulh b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $c9 mulh c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $ca mulh c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $cb mulh c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_mul_hi_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $cc - $d4 (3 cycles)
+#region register_cmp
+opcode $cc cmp a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $cd cmp a, c
+{
+	seq fetch;
+	seq _a_write_lhs | _c_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $ce cmp a, d
+{
+	seq fetch;
+	seq _a_write_lhs | _d_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $cf cmp b, a
+{
+	seq fetch;
+	seq _b_write_lhs | _a_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d0 cmp b, c
+{
+	seq fetch;
+	seq _b_write_lhs | _c_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d1 cmp b, d
+{
+	seq fetch;
+	seq _b_write_lhs | _d_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d2 cmp c, a
+{
+	seq fetch;
+	seq _c_write_lhs | _a_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d3 cmp c, b
+{
+	seq fetch;
+	seq _c_write_lhs | _b_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d4 cmp c, d
+{
+	seq fetch;
+	seq _c_write_lhs | _d_write_rhs | alu_cmp_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $d5 - $d8 (3 cycles)
+#region register_not
+opcode $d5 not a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_not_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d6 not b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_not_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d7 not c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_not_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $d8 not d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_not_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $d9 - $dc (3 cycles)
+#region register_bit
+opcode $d9 bit a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_bit_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $da bit b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_bit_lhs_rhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $db bit c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_bit_lhs_rhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $dc bit d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_bit_lhs_rhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $dd - $e0 (3 cycles)
+#region register_shl
+opcode $dd shl a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_shl_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $de shl b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_shl_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $df shl c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_shl_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $e0 shl d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_shl_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $e1 - $e4 (3 cycles)
+#region register_shr
+opcode $e1 shr a
+{
+	seq fetch;
+	seq _a_write_lhs | alu_shr_lhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $e2 shr b
+{
+	seq fetch;
+	seq _b_write_lhs | alu_shr_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $e3 shr c
+{
+	seq fetch;
+	seq _c_write_lhs | alu_shr_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $e4 shr d
+{
+	seq fetch;
+	seq _d_write_lhs | alu_shr_lhs | _alu_write_data | d_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $e5 - $e6 (3 cycles)
+#region register_msh
+opcode $e5 mshl a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_mshl_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $e6 mshr a, b
+{
+	seq fetch;
+	seq _a_write_lhs | _b_write_rhs | alu_mshr_lhs_rhs | _alu_write_data | a_read_data;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $e7 - $e9 (3 cycles)
+#region flag_set_clear
+opcode $e7 clc
+{
+	seq fetch;
+	seq alu_clc;
+	seq _tcuEndSeq;
+}
+
+opcode $e8 sei
+{
+	seq fetch;
+	seq alu_sei;
+	seq _tcuEndSeq;
+}
+
+opcode $e9 cli
+{
+	seq fetch;
+	seq alu_cli;
+	seq _tcuEndSeq;
+}
+#endregion
+
+; opcode slots $ea - $fe
+#region flow_control
+; flow control stuff - should probably take around 22 or so opcode slots!
+#endregion
+
+; opcode slot $ff
+#region special
+; this is needed because on startup, the IR loads with value $ff 
+opcode $ff ign
+{
+	seq fetch;
+	seq _tcuEndSeq;
+}
+#endregion
+
+#endregion
+
+; *** define opcode aliases ***
+#region opcode_aliases
+opcode_alias $00 null
+opcode_alias $01 lda #
+opcode_alias $02 ldb #
+opcode_alias $03 ldc #
+opcode_alias $04 ldd #
+opcode_alias $05 ldth #
+opcode_alias $06 ldtl #
+opcode_alias $07 tab
+opcode_alias $08 tac
+opcode_alias $09 tad
+opcode_alias $0a tatl
+opcode_alias $0b tath
+opcode_alias $0c tba
+opcode_alias $0d tbc
+opcode_alias $0e tbd
+opcode_alias $0f tbtl
+opcode_alias $10 tbth
+opcode_alias $11 tca
+opcode_alias $12 tcb
+opcode_alias $13 tcd
+opcode_alias $14 tctl
+opcode_alias $15 tcth
+opcode_alias $16 tda
+opcode_alias $17 tdb
+opcode_alias $18 tdc
+opcode_alias $19 tdtl
+opcode_alias $1a tdth
+opcode_alias $1b ttla
+opcode_alias $1c ttlb
+opcode_alias $1d ttlc
+opcode_alias $1e ttld
+opcode_alias $1f ttlth
+opcode_alias $20 ttha
+opcode_alias $21 tthb
+opcode_alias $22 tthc
+opcode_alias $23 tthd
+opcode_alias $24 tthtl
+#endregion
+
+; end the architecture definition
 **endarch**
