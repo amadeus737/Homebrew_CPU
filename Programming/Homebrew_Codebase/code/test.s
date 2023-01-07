@@ -1,4 +1,4 @@
-.arch "homebrew.arch"
+.arch "htest.arch"
 .org $0
 
 start:	
@@ -48,3 +48,11 @@ start:
 	
 	mov a, %00000001;
 	mov b, %10000000;
+	
+	mov c, $61;
+	
+	mov ml, $aa;
+	mov mh, $55;
+
+	mov ml, $55;
+	mov mh, $aa;

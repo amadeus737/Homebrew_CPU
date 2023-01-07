@@ -1,0 +1,231 @@
+; *** define architecture ***
+#region architecture_specs
+; define bit width of instructions and addresses
+instruction_width		1
+address_width		2
+
+
+; define size (in bytes) of program rom
+decoder_rom		1		16 16
+program_rom		1		15 8
+
+
+; *** define registers first ***
+register		8		a, b, c, mh, ml, al, ah
+register		16		pc, ra, mx, ax
+register		16		sp, si
+
+
+; *** define flags ***
+flag flag_c, flag_s, flag_v, flag_z, flag_d
+
+
+; *** define external devices ***
+device device0, device1, device2, device3, device4, device5, device6, device7, device8, device9, device10
+#endregion
+
+; *** define control lines (32) ***
+#region control_lines
+; mem bus writers (2)
+control null_write_mem			0 << 0
+control _mem_out					1 << 0
+control _membridge_write_mem		2 << 0
+
+; mem bus readers (2)
+control null_read_mem				0 << 2
+control ir_read_mem				1 << 2
+control mh_read_mem				2 << 2
+control ml_read_mem				3 << 2
+
+; data bus writers (3)
+control null_write_data			0 << 4
+control _membridge_write_data		1 << 4
+control _alu_write_data			2 << 4
+control _device0_write_data		3 << 4
+control _device1_write_data		4 << 4
+control _device2_write_data		5 << 4
+control _device3_write_data		6 << 4
+control _device4_write_data		7 << 4
+
+; data bus readers (4)
+control null_read_data			0 << 7
+control a_read_data				1 << 7
+control b_read_data				2 << 7
+control c_read_data				3 << 7
+control device_0_read_data			4 << 7
+control device_1_read_data			5 << 7
+control device_2_read_data			6 << 7
+control device_3_read_data			7 << 7
+control device_4_read_data			8 << 7
+control device_5_read_data			9 << 7
+control device_6_read_data			10 << 7
+control device_7_read_data			11 << 7
+control device_8_read_data			12 << 7
+control device_9_read_data			13 << 7
+control device_10_read_data		14 << 7
+control device_11_read_data		15 << 7
+
+; lhs bus writers (3)
+control null_write_lhs			0 << 11
+control _mh_write_lhs				1 << 11
+control _a_write_lhs				2 << 11
+control _b_write_lhs				3 << 11
+control _c_write_lhs				4 << 11
+control _ra_write_lhs				5 << 11
+control _ah_write_lhs		    	6 << 11
+
+; rhs bus writers (3)
+control null_write_rhs			0 << 14
+control _ml_write_rhs				1 << 14
+control _a_write_rhs				2 << 14
+control _b_write_rhs				3 << 14
+control _c_write_rhs				4 << 14
+control _ra_write_rhs				5 << 14
+control _al_write_rhs				6 << 14
+
+; lhs / rhs bus readers (2)
+control null_read_lrhs			0 << 17
+control _pc_read_lrhs				1 << 17
+control _sp_read_lrhs				2 << 17
+control _si_read_lrhs				3 << 17
+
+; addr bus writers (2)
+control _pc_write_addr			0 << 19
+control _mx_write_addr			1 << 19
+control _sp_write_addr			2 << 19
+control _si_write_addr			3 << 19
+
+; inc / dec / store (3)
+control null_inc_dec_sto			0 << 21
+control pc_dec					1 << 21
+control sp_inc					2 << 21
+control si_inc					3 << 21
+control sp_dec					4 << 21
+control si_dec					5 << 21
+control _ram_write				6 << 21
+
+; sequence controls (3)
+control null_seq					0 << 24
+control pc_inc					1 << 24
+control _tcuEndSeq				2 << 24
+control rti						3 << 24
+control ra_read_lhs				4 << 24
+control ra_read_rhs				5 << 24
+control ra_read_pc				6 << 24
+control ax_read_addr           7 << 24
+
+; alu operations (5)
+control alu_pass_lhs				0 << 27
+control alu_pass_rhs				1 << 27
+control alu_inc_lhs				2 << 27
+control alu_incc_lhs				3 << 27
+control alu_dec_lhs				4 << 27
+control alu_add_lhs_rhs			5 << 27
+control alu_addc_lhs_rhs			6 << 27
+control alu_sub_lhs_rhs			7 << 27
+control alu_subb_lhs_rhs			8 << 27
+control alu_mul_lo_lhs_rhs			9 << 27
+control alu_mul_hi_lhs_rhs			10 << 27
+control alu_div_lhs_rhs			11 << 27
+control alu_mod_lhs_rhs			12 << 27
+control alu_shl_lhs				13 << 27
+control alu_shr_lhs				14 << 27
+control alu_mshl_lhs_rhs			15 << 27
+control alu_mshr_lhs_rhs			16 << 27
+control alu_and_lhs_rhs			17 << 27
+control alu_or_lhs_rhs			18 << 27
+control alu_xor_lhs_rhs			19 << 27
+control alu_not_lhs				20 << 27
+control alu_cmp_lhs_rhs			21 << 27
+control alu_bit_lhs_rhs			22 << 27
+control alu_clc					23 << 27
+control alu_sei					24 << 27
+control alu_cli					25 << 27
+; and more
+
+; special
+control fetch = _mem_out | ir_read_mem | _pc_write_addr | pc_inc
+#endregion
+
+; *** define opcodes (256) ***
+#region opcodes
+
+; opcode slot $00 (2 cycles)
+#region no_operation
+opcode $00 nop 
+{ 
+	seq fetch;
+	seq _tcuEndSeq;
+}
+#endregion
+
+#region immediate_moves
+opcode $01 mov a, #
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | a_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $02 mov b, #
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | b_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $03 mov c, #
+{
+	seq fetch;
+	seq _mem_out | _membridge_write_data | c_read_data | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $04 mov ml, #
+{
+	seq fetch;
+	seq _mem_out | ml_read_mem | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+
+opcode $05 mov mh, #
+{
+	seq fetch;
+	seq _mem_out | mh_read_mem | _pc_write_addr | pc_inc;
+	seq _tcuEndSeq;
+}
+#endregion
+
+#region register_transfers
+opcode $06 mov a, b
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | b_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $07 mov a, c
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | c_read_data;
+	seq _tcuEndSeq;
+}
+
+opcode $08 mov a, ml
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | ml_read_mem;
+	seq _tcuEndSeq;
+}
+
+opcode $09 mov a, mh
+{
+	seq fetch;
+	seq _a_write_lhs | alu_pass_lhs | _alu_write_data | _membridge_write_mem | mh_read_mem;
+	seq _tcuEndSeq;
+}
+#endregion
+
+#endregion
+
+**endarch**

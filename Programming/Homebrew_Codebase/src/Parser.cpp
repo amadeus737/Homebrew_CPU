@@ -137,7 +137,7 @@ bool Parser::try_strip_label(std::string& s)
 {
 	if (is_label(s))
 	{
-		s = std::string(std::next(s.begin()), std::prev(std::prev(s.end())));
+		s = std::string(s.begin(), std::prev(s.end()));
 		return true;
 	}
 

@@ -22,7 +22,7 @@ public:
 	void AddData(const int& address, T d) { if (address < _data.size()) _data[address] = d; };
 	std::optional<T> GetData(int i) { return _data[i]; }
 	int GetSize() const { return _size; }
-	
+
 	void Initialize(T val)
 	{
 		//memset(&_data[0], 0, _size);
@@ -70,9 +70,9 @@ public:
 		for (auto b : _data)
 		{
 			if (num_bytes == 2)
-				file << (unsigned char)((b.value_or(0) & 0xff00) >> 8);
+				file << (uint8_t)((b.value_or(0) & 0xff00) >> 8);
 
-			file << (unsigned char)(b.value_or(0) & 0x00ff);
+			file << (uint8_t)(b.value_or(0) & 0x00ff);
 
 			if (b.has_value())
 			{
@@ -135,7 +135,7 @@ public:
 					if (num_bytes == 2)
 					{
 						uint16_t v16 = ((v & 0xff00) >> 8) | ((v & 0x00ff) << 8);
-					
+
 						row.push_back(v16);
 						row_total += v16;
 						lastVal = v16;
@@ -148,8 +148,8 @@ public:
 					}
 
 					print_bytes_row_total++;
-					
-					
+
+
 					//printedBytes++;
 				}
 				else
@@ -179,7 +179,7 @@ public:
 									std::cout << std::hex << std::uppercase << std::setw(2 * num_bytes) << std::setfill('0') << "..  ";
 								else
 									std::cout << std::hex << std::uppercase << std::setw(2 * num_bytes) << std::setfill('0') << "....  ";
-							}								
+							}
 						}
 
 						printedBytes += print_bytes_row_total;
@@ -193,13 +193,13 @@ public:
 							if (num_bytes == 1)
 							{
 								std::cout << "\n....   ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..";
-							//	std::cout << "\n....   ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..";
+								//	std::cout << "\n....   ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..";
 							}
 
 							if (num_bytes == 2)
 							{
 								std::cout << "\n....   ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....";
-							//	std::cout << "\n....   ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....";
+								//	std::cout << "\n....   ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....  ....";
 							}
 
 							last_row_was_ellipsis = true;
@@ -228,6 +228,7 @@ public:
 	}
 
 	std::vector<std::optional<T>>& GetData() { return _data; }
+	std::optional<T> GetDataAt(int a) { return _data[a]; }
 	const void* GetDataPtr() { return &_data[0]; }
 
 private:
